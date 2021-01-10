@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<h1> {{ player }} </h1>
+{% endblock %}
+
+{% block body %}
+
+
+
+<table>
+
+<form action="/versus" method="POST">
+<tr>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=6>
+</td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=5>
+    </td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=4>
+    </td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=3>
+    </td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=2>
+    </td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=1>
+    </td>
+    <td>
+        {% if full == 1 %}
+        <input type="submit" placeholder="LOL" name="col" value=12312>
+        {% else %}
+<input type="submit" placeholder="LOL" name="col" value=0>
+        {% endif %}
+    </td>
+</tr>
+</form>
+<tr>
+{% for row in board %}
+<td>
+    <tr>
+    {% for cell in row %}
+    <td {% if cell == 1 %} class="red"
+        {% elif cell == 2%} class="blue"
+        {% else%} class="normal"
+
+        {% endif %}>  </td>
+    {% endfor %}
+</tr>
+</td>
+    </tr>
+<br>
+
+{% endfor %}
+</table>
+
+
+
+
+
+
+<a>{{ win }}</a>
+<br>
+<a class="dupa" href="{{ url_for('echo')}}">
+    {{ title }}siema
+</a>
+<br>
+
+{% if refresh == 1 %}
+<script>setTimeout(function(){
+   window.location.reload(1);
+}, 1000);</script>
+{% endif %}
+<a>{{ full }}</a>
+
+
+<br>
+<div class="center">
+<a class="pls">SIEMKA</a>
+</div>
+
+{% endblock %}

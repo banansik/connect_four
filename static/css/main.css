@@ -1,0 +1,28 @@
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #d7f5b5;
+}
+.red{
+width:30px;
+height:30px;
+background-color: red;}
+
+.blue{
+width:30px;
+height:30px;
+background-color: blue;}
+
+.normal{
+width:30px;
+height:30px;
+background-color: #ebeaca;}
+
+
+.wut{
+width:100px;
+height:100px;
+background-color: blue;
+padding: 100px;
+}
+
+
