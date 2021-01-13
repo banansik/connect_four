@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Super Farmer</title>
+{% endblock %}
+
+{% block content %}
+    <div id="menu">
+    <h1>Super Farmer</h1>
+    <a class="links" href="/create">Stwórz grę</a>
+    <br><br>
+        <h2>Lista gier</h2>
+            {% for game in games %}
+            {% if games[game]['multi'] == True and games[game]['full'] == False %}
+                <p>Gra nr {{ game }} <a class="links" href="{{ url_for('join', gameNumber=game) }}">Dołącz do gry</a></p>
+            {% endif %}
+    {% endfor %}
+    </div>
+{% endblock %}

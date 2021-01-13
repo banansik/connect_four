@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    {% if gra['full'] == False %}
+       <meta http-equiv="refresh" content="2" >
+    {% endif %}
+    <title>Super Farmer</title>
+{% endblock %}
+
+{% block body %}
+    <div id="wygrana">
+     {% if gra['full'] == False %}
+        <h2>Oczekiwanie na przeciwnika</h2>
+    {% else %}
+        <h2>Znaleziono przeciwnika</h2>
+         <a class="links" href="{{ url_for('sm', gameNumber=gra['number']) }}">Start gry</a>
+
+    {% endif %}
+    </div>
+{% endblock %}
