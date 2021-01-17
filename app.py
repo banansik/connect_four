@@ -205,7 +205,7 @@ def echo():
 
         else:
 
-            col, minimax_score = minimax(board,1, -math.inf, math.inf, True)
+            col, minimax_score = minimax(board,2, -math.inf, math.inf, True)
             row = get_next_open_row(board, col)
             player = 'player one'
             if is_valid_location(board, col):
@@ -221,7 +221,7 @@ def echo():
                 drop_piece(board, row, col, PLAYER_PIECE)
                 if winning_move(board, turn+1):
                     win = 1
-                    return render_template('win.html', turn = win)
+                    return render_template('win.html', turn = win, board = np.flip(board) )
                 kolejka = 1
 
                 turn += 1

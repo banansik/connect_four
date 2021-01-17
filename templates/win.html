@@ -8,8 +8,56 @@
 <p>Player {{ turn }} win</p>
 
 
+<table>
 
+<form action="/echo" method="POST">
+<tr>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=6 hidden="1">
+</td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=5 hidden="1">
+    </td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=4 hidden="1">
+    </td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=3 hidden="1">
+    </td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=2 hidden="1">
+    </td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=1 hidden="1">
+    </td>
+    <td>
+        {% if full == 1 %}
+        <input type="submit" placeholder="LOL" name="col" value=12312>
+        {% else %}
+<input type="submit" placeholder="LOL" name="col" value=0 hidden="1">
+        {% endif %}
+    </td>
+</tr>
 </form>
+<tr>
+{% for row in board %}
+<td>
+    <tr>
+    {% for cell in row %}
+    <td {% if cell == 1 %} class="red"
+        {% elif cell == 2%} class="blue"
+        {% else%} class="normal"
+
+        {% endif %}>  </td>
+    {% endfor %}
+</tr>
+</td>
+    </tr>
+<br>
+
+{% endfor %}
+</table>
+
 
 <a href="/">
     {{ title }} Menu Główne
