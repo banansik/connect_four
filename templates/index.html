@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<h1> {{ player }} </h1>
+<h1> Wybierz kolumnę</h1>
 {% endblock %}
 
 {% block body %}
@@ -13,29 +13,60 @@
 <form action="/echo" method="POST">
 <tr>
     <td>
-<input type="submit" placeholder="LOL" name="col" value=6>
+{% if full6 == 1 %}
+
+    <input type="submit" placeholder="LOL" name="col" value=6 hidden="1">
+    {% else %}
+        <input type="submit" placeholder="LOL" name="col" value=6>
+    {% endif %}
 </td>
     <td>
-<input type="submit" placeholder="LOL" name="col" value=5>
+{% if full5 == 1 %}
+
+    <input type="submit" placeholder="LOL" name="col" value=5 hidden="1">
+    {% else %}
+        <input type="submit" placeholder="LOL" name="col" value=5>
+    {% endif %}
     </td>
     <td>
-<input type="submit" placeholder="LOL" name="col" value=4>
+{% if full4 == 1 %}
+
+    <input type="submit" placeholder="LOL" name="col" value=4 hidden="1">
+    {% else %}
+        <input type="submit" placeholder="LOL" name="col" value=4>
+    {% endif %}
     </td>
     <td>
-<input type="submit" placeholder="LOL" name="col" value=3>
+{% if full3 == 1 %}
+
+    <input type="submit" placeholder="LOL" name="col" value=3 hidden="1">
+    {% else %}
+        <input type="submit" placeholder="LOL" name="col" value=3>
+    {% endif %}
     </td>
     <td>
-<input type="submit" placeholder="LOL" name="col" value=2>
+{% if full2 == 1 %}
+
+    <input type="submit" placeholder="LOL" name="col" value=2 hidden="1">
+    {% else %}
+        <input type="submit" placeholder="LOL" name="col" value=2>
+    {% endif %}
     </td>
     <td>
-<input type="submit" placeholder="LOL" name="col" value=1>
+{% if full1 == 1 %}
+
+    <input type="submit" placeholder="LOL" name="col" value=1 hidden="1">
+    {% else %}
+        <input type="submit" placeholder="LOL" name="col" value=1>
+    {% endif %}
     </td>
     <td>
-        {% if full == 1 %}
-        <input type="submit" placeholder="LOL" name="col" value=12312>
-        {% else %}
-<input type="submit" placeholder="LOL" name="col" value=0>
-        {% endif %}
+    {% if full0 == 1 %}
+
+    <input type="submit" placeholder="LOL" name="col" value=0 hidden="1">
+    {% else %}
+        <input type="submit" placeholder="LOL" name="col" value=0>
+    {% endif %}
     </td>
 </tr>
 </form>
@@ -60,15 +91,15 @@
 
 
 
+{% if win|length > 2 and game_mode == 1%}
+
+<a href="/revange_AI"> rewanż </a>
+
+{% endif %}
 
 
 
-<a>{{ win }}</a>
-<br>
-<a class="dupa" href="{{ url_for('echo')}}">
-    {{ title }}siema
-</a>
-<br>
+
 
 {% if refresh == 1 %}
 <script>setTimeout(function(){
@@ -80,7 +111,9 @@
 
 <br>
 <div class="center">
-<a class="pls">SIEMKA</a>
+
 </div>
+
+
 
 {% endblock %}

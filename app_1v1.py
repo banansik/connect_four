@@ -75,7 +75,7 @@ def test():
     return redirect('siemaa')
 @app.route('/siemaa')
 def hej():
-    return  render_template('index1v1.html', board = board)
+    return  render_template('czekaj.html', board = board)
 
 @app.route("/")
 def main():

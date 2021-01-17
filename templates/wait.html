@@ -1,159 +1,85 @@
 {% extends 'base.html' %}
 
 {% block head %}
-    <meta http-equiv="refresh" content="2" >
-    <title>Super Farmer</title>
+<h1> {{ player }} </h1>
 {% endblock %}
 
-{% block content %}
-    <div id="main">
-    <h2>Obecna tura: {{ gra['current_player'] }}</h2>
-    <div id="first">
-    <h3>Gracz: pierwszy</h3>
-    <table>
-        <thead>
-        <tr>
-        <th>Zwierzę</th>
-        <th>Ilość</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-        <td><img src="/static/images/zwierzatka/picrabbits.jpeg" alt="Króliki"></td>
-        <td>{{ gra['first'].stado['rabbits'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/picsheep.jpeg" alt="Owce"></td>
-        <td>{{ gra['first'].stado['sheep'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/picpigs.jpeg" alt="Świnie"></td>
-        <td>{{ gra['first'].stado['pigs'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/piccows.jpeg" alt="Krowy"></td>
-        <td>{{ gra['first'].stado['cows'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/pichorses.jpeg" alt="Konie"></td>
-        <td>{{ gra['first'].stado['horses'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/picsmall_dogs.jpeg" alt="Małe psy"></td>
-        <td>{{ gra['first'].stado['small_dogs'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/piclarge_dogs.jpeg" alt="Duże psy"></td>
-        <td>{{ gra['first'].stado['large_dogs'] }}</td>
-        </tr>
+{% block body %}
 
-        </tbody>
-    </table>
 
-        {% if gra['multi'] and session['player'] != gra['current_player'] and gra['current_player'] == 'second'%}
-            <div id="kostki">
-            Kości: <br>
-            <img src="/static/images/zwierzatka/pic{{kostka1}}.jpeg" alt="1 kostka">
-             <img src="/static/images/zwierzatka/pic{{kostka2}}.jpeg" alt="2 kostka">
-            </div>
+
+<table>
+
+<form action="/echo" method="POST">
+<tr>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=6 hidden="1">
+</td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=5 hidden="1">
+    </td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=4 hidden="1">
+    </td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=3 hidden="1">
+    </td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=2 hidden="1">
+    </td>
+    <td>
+<input type="submit" placeholder="LOL" name="col" value=1 hidden="1">
+    </td>
+    <td>
+        {% if full == 1 %}
+        <input type="submit" placeholder="LOL" name="col" value=12312>
+        {% else %}
+<input type="submit" placeholder="LOL" name="col" value=0 hidden="1">
         {% endif %}
+    </td>
+</tr>
+</form>
+<tr>
+{% for row in board %}
+<td>
+    <tr>
+    {% for cell in row %}
+    <td {% if cell == 1 %} class="red"
+        {% elif cell == 2%} class="blue"
+        {% else%} class="normal"
 
-    </div>
+        {% endif %}>  </td>
+    {% endfor %}
+</tr>
+</td>
+    </tr>
+<br>
 
-         <div id="primary">
-     <h3>Stado główne</h3>
-    <table>
-        <thead>
-        <tr>
-        <th>Zwierzę</th>
-        <th>Ilość</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-        <td><img src="/static/images/zwierzatka/picrabbits.jpeg" alt="Króliki"></td>
-        <td>{{ gra['primary'].stado['rabbits'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/picsheep.jpeg" alt="Owce"></td>
-        <td>{{ gra['primary'].stado['sheep'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/picpigs.jpeg" alt="Świnie"></td>
-        <td>{{ gra['primary'].stado['pigs'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/piccows.jpeg" alt="Krowy"></td>
-        <td>{{ gra['primary'].stado['cows'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/pichorses.jpeg" alt="Konie"></td>
-        <td>{{ gra['primary'].stado['horses'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/picsmall_dogs.jpeg" alt="Małe psy"></td>
-        <td>{{ gra['primary'].stado['small_dogs'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/piclarge_dogs.jpeg" alt="Duże psy"></td>
-        <td>{{ gra['primary'].stado['large_dogs'] }}</td>
-        </tr>
-
-        </tbody>
-    </table>
-    </div>
-
-    <div id="second">
-     <h3>Gracz: drugi</h3>
-    <table>
-        <thead>
-        <tr>
-        <th>Zwierzę</th>
-        <th>Ilość</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-        <td><img src="/static/images/zwierzatka/picrabbits.jpeg" alt="Króliki"></td>
-        <td>{{ gra['second'].stado['rabbits'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/picsheep.jpeg" alt="Owce"></td>
-        <td>{{ gra['second'].stado['sheep'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/picpigs.jpeg" alt="Świnie"></td>
-        <td>{{ gra['second'].stado['pigs'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/piccows.jpeg" alt="Krowy"></td>
-        <td>{{ gra['second'].stado['cows'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/pichorses.jpeg" alt="Konie"></td>
-        <td>{{ gra['second'].stado['horses'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/picsmall_dogs.jpeg" alt="Małe psy"></td>
-        <td>{{ gra['second'].stado['small_dogs'] }}</td>
-        </tr>
-        <tr>
-        <td><img src="/static/images/zwierzatka/piclarge_dogs.jpeg" alt="Duże psy"></td>
-        <td>{{ gra['second'].stado['large_dogs'] }}</td>
-        </tr>
-
-        </tbody>
-    </table>
+{% endfor %}
+</table>
 
 
-     {% if gra['multi'] and session['player'] != gra['current_player'] and gra['current_player'] == 'first'%}
-            <div id="kostki">
-            Kości: <br>
-            <img src="/static/images/zwierzatka/pic{{kostka1}}.jpeg" alt="1 kostka">
-             <img src="/static/images/zwierzatka/pic{{kostka2}}.jpeg" alt="2 kostka">
-            </div>
-        {% endif %}
 
-    </div>
-    </div>
+
+
+
+
+<br>
+
+
+</a>
+<br>
+
+{% if refresh == 1 %}
+<script>setTimeout(function(){
+   window.location.reload(1);
+}, 1000);</script>
+{% endif %}
+
+
+
+<script>setTimeout(function(){
+   window.location.reload(1);
+}, 2000);</script>
 {% endblock %}
+%}

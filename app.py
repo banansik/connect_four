@@ -1,250 +1,311 @@
-from flask import Flask, render_template, request, redirect,url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import numpy as np
 import random
-
 import math
 from stale import *
-
-
-
-def make_board():
-    board = np.zeros((ROW_COUNT,COLUMN_COUNT), dtype =int)
-    return board
-
-def create_board():
-	board = np.zeros((ROW_COUNT,COLUMN_COUNT), dtype = int)
-	return board
-def chceck_col(board):
-    if board[ROW_COUNT-1][COLUMN_COUNT-1] != 0:
-        return True
-
-def drop_piece(board, row, col, piece):
-	board[row][col] = piece
-
-def is_valid_location(board, col):
-	return board[ROW_COUNT-1][col] == 0
-
-def get_next_open_row(board, col):
-	for r in range(ROW_COUNT):
-		if board[r][col] == 0:
-			return r
-
-def print_board(board):
-	print(np.flip(board, 0))
-
-def winning_move(board, piece):
-	# Check horizontal locations for win
-	for c in range(COLUMN_COUNT-3):
-		for r in range(ROW_COUNT):
-			if board[r][c] == piece and board[r][c+1] == piece and board[r][c+2] == piece and board[r][c+3] == piece:
-				return True
-
-	# Check vertical locations for win
-	for c in range(COLUMN_COUNT):
-		for r in range(ROW_COUNT-3):
-			if board[r][c] == piece and board[r+1][c] == piece and board[r+2][c] == piece and board[r+3][c] == piece:
-				return True
-
-	# Check positively sloped diaganols
-	for c in range(COLUMN_COUNT-3):
-		for r in range(ROW_COUNT-3):
-			if board[r][c] == piece and board[r+1][c+1] == piece and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
-				return True
-
-	# Check negatively sloped diaganols
-	for c in range(COLUMN_COUNT-3):
-		for r in range(3, ROW_COUNT):
-			if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
-				return True
-
-def evaluate_window(window, piece):
-	score = 0
-	opp_piece = PLAYER_PIECE
-	if piece == PLAYER_PIECE:
-		opp_piece = AI_PIECE
-
-	if window.count(piece) == 4:
-		score += 100
-	elif window.count(piece) == 3 and window.count(EMPTY) == 1:
-		score += 5
-	elif window.count(piece) == 2 and window.count(EMPTY) == 2:
-		score += 2
-
-	if window.count(opp_piece) == 3 and window.count(EMPTY) == 1:
-		score -= 4
-
-	return score
-
-def score_position(board, piece):
-	score = 0
-
-	## Score center column
-	center_array = [int(i) for i in list(board[:, COLUMN_COUNT//2])]
-	center_count = center_array.count(piece)
-	score += center_count * 3
-
-	## Score Horizontal
-	for r in range(ROW_COUNT):
-		row_array = [int(i) for i in list(board[r,:])]
-		for c in range(COLUMN_COUNT-3):
-			window = row_array[c:c+WINDOW_LENGTH]
-			score += evaluate_window(window, piece)
-
-	## Score Vertical
-	for c in range(COLUMN_COUNT):
-		col_array = [int(i) for i in list(board[:,c])]
-		for r in range(ROW_COUNT-3):
-			window = col_array[r:r+WINDOW_LENGTH]
-			score += evaluate_window(window, piece)
-
-	## Score posiive sloped diagonal
-	for r in range(ROW_COUNT-3):
-		for c in range(COLUMN_COUNT-3):
-			window = [board[r+i][c+i] for i in range(WINDOW_LENGTH)]
-			score += evaluate_window(window, piece)
-
-	for r in range(ROW_COUNT-3):
-		for c in range(COLUMN_COUNT-3):
-			window = [board[r+3-i][c+i] for i in range(WINDOW_LENGTH)]
-			score += evaluate_window(window, piece)
-
-	return score
-
-def is_terminal_node(board):
-	return winning_move(board, PLAYER_PIECE) or winning_move(board, AI_PIECE) or len(get_valid_locations(board)) == 0
-
-def minimax(board, depth, alpha, beta, maximizingPlayer):
-	valid_locations = get_valid_locations(board)
-	is_terminal = is_terminal_node(board)
-	if depth == 0 or is_terminal:
-		if is_terminal:
-			if winning_move(board, AI_PIECE):
-				return (None, 100000000000000)
-			elif winning_move(board, PLAYER_PIECE):
-				return (None, -10000000000000)
-			else: # Game is over, no more valid moves
-				return (None, 0)
-		else: # Depth is zero
-			return (None, score_position(board, AI_PIECE))
-	if maximizingPlayer:
-		value = -math.inf
-		column = random.choice(valid_locations)
-		for col in valid_locations:
-			row = get_next_open_row(board, col)
-			b_copy = board.copy()
-			drop_piece(b_copy, row, col, AI_PIECE)
-			new_score = minimax(b_copy, depth-1, alpha, beta, False)[1]
-			if new_score > value:
-				value = new_score
-				column = col
-			alpha = max(alpha, value)
-			if alpha >= beta:
-				break
-		return column, value
-
-	else: # Minimizing player
-		value = math.inf
-		column = random.choice(valid_locations)
-		for col in valid_locations:
-			row = get_next_open_row(board, col)
-			b_copy = board.copy()
-			drop_piece(b_copy, row, col, PLAYER_PIECE)
-			new_score = minimax(b_copy, depth-1, alpha, beta, True)[1]
-			if new_score < value:
-				value = new_score
-				column = col
-			beta = min(beta, value)
-			if alpha >= beta:
-				break
-		return column, value
-
-def get_valid_locations(board):
-	valid_locations = []
-	for col in range(COLUMN_COUNT):
-		if is_valid_location(board, col):
-			valid_locations.append(col)
-	return valid_locations
-
-def pick_best_move(board, piece):
-
-	valid_locations = get_valid_locations(board)
-	best_score = -10000
-	best_col = random.choice(valid_locations)
-	for col in valid_locations:
-		row = get_next_open_row(board, col)
-		temp_board = board.copy()
-		drop_piece(temp_board, row, col, piece)
-		score = score_position(temp_board, piece)
-		if score > best_score:
-			best_score = score
-			best_col = col
-
-	return best_col
+from main_functions import *
+from computer_moves import *
 
 app = Flask(__name__)
+games = {}
+gameNumber = 1
+app.secret_key = 'lol'
+
+
+def starting():
+    global current_player_object
+    global current_player
+    global komputer
+    global gameNumber
+    global games
+    global game
+    global game_mode
+    global kolejka
+    kolejka = -1
+    game_mode = 3
+    game = {'komputer': False,
+            'current_player': 'first',
+            'current_player_object': '',
+            'multi': False,
+            'full': False,
+            'began': False,
+            'number': gameNumber}
+
+    games[gameNumber] = game
+    session['game'] = gameNumber
 
 
 
-@app.route('/test')
-def test():
+
+
+def win_check():
     global board
+    if winning_move(board, turn+1):
+        return True
+
+@app.route('/siec')
+def siec():
+    global games
+    return render_template('siec.html', games=games)
+
+@app.route('/create')
+def create():
+    global board, turn, game_mode
+    global games
+    global gameNumber
+    game_mode = 3
+    turn = 0
     board = create_board()
-    return redirect('siema')
-@app.route('/siema')
-def hej():
+    if len(games)!=0 and games[session['game']]['full'] == True:
+        turn = 0
+        player = session['player']
+        return render_template('index.html',board = board,player = player, gra=games[session['game']])
+    starting()
+    session['player'] = 'first'
+    session['game'] = gameNumber
+    games[session['game']]['multi'] = True #games[1][multi]=True
+    return render_template('poczekalnia.html', gra=games[session['game']])
+
+
+@app.route('/join')
+def join():
+    global games
+    gameNumber = request.args.get('gameNumber')
+    if games[int(gameNumber)]['full'] == False:
+        session['game'] = int(gameNumber)
+        session['player'] = 'second'
+        games[session['game']]['full'] = True
+        games[int(gameNumber)]['began'] = True
+        game = games[session['game']]
+    if games[int(gameNumber)] == games[int(session['game'])] and games[int(gameNumber)]['began'] == True:
+        pass
+    return redirect(url_for('wait'))
+
+@app.route('/wait')
+def wait():
+    global games, board, kolejka, turn, win
+    game = request.args.get('gra')
+    game = games[session['game']]
+    dziala = session['player']
+    full0 = ' '
+    if board[5][0] > 0:
+        full0 = 1
+    full1 = ' '
+    if board[5][1] > 0:
+        full1 = 1
+    full2 = ' '
+    if board[5][2] > 0:
+        full2 = 1
+    full3 = ' '
+    if board[5][3] > 0:
+        full3 = 1
+    full4 = ' '
+    if board[5][4] > 0:
+        full4 = 1
+    full5 = ' '
+    if board[5][5] > 0:
+        full5 = 1
+    full6 = ' '
+    if board[5][6] > 0:
+        full6 = 1
+    if win_check() and kolejka == 1:
+        win = 1
+        return render_template('win.html', turn = win+1)
+    if win_check() and kolejka == 0:
+        win = 0
+        return render_template('win.html', turn = win+1)
+    if session['player'] == 'first' and kolejka == 0:
+
+            return render_template('index.html',kolejka=kolejka, board = np.flip(board),full6 = full6,full5 = full5, full4 = full4, full3 = full3, full2 = full2,full1 = full1,full0 = full0, game_mode = game_mode)
+
+    if session['player'] == 'second' and kolejka == 1:
+
+        return render_template('index.html', board = np.flip(board),full6 = full6,full5 = full5, full4 = full4, full3 = full3, full2 = full2,full1 = full1,full0 = full0, game_mode = game_mode)
+    if games[session['game']]['current_player'] == session['player']:
+
+        return render_template('wait.html',board = np.flip(board), gra=game, dziala=dziala)
+
+
+
+    return render_template('wait.html',board = np.flip(board), gra=game, dziala = dziala)
+
+
+@app.route("/test", methods=['POST', 'GET'] )
+def test():
+    global board, vs, game_mode
+    board = create_board()
+    game_mode=int(request.form.get('mode'))
+
+    return redirect('new_game')
+
+@app.route('/revange_AI')
+def revange():
+    global board, game_mode, turn
+    board = create_board()
+    game_mode=1
+    turn = 0
     return  render_template('index.html', board = board)
+
+
 
 @app.route("/")
 def main():
+    global turn
+    starting()
+    turn = 0
     return render_template('start.html')
 
+@app.route("/AI")
+def AI():
+    global game_mode, board
+    game_mode = 1
+    board = make_board()
+    return  render_template('index.html', board = board)
+
+@app.route("/vs")
+def vs():
+    global game_mode, board
+    board = make_board()
+    game_mode = 0
+    return  render_template('index.html', board = board)
 
 
 @app.route("/echo", methods=['POST', 'GET'])
 def echo():
-    global turn, prev_turn
-    global board
+    global turn, prev_turn, board,kolejka
     refresh = 0
 
+    if game_mode == 0:
+        if turn == 0:
+            player = 'player two'
+            col=int(request.form.get('col'))
+            if is_valid_location(board,col):
+
+                row = get_next_open_row(board,col)
+                drop_piece(board, row, col, PLAYER_PIECE)
+        else:
+            player = 'player one'
+            col=int(request.form.get('col'))
+            if is_valid_location(board, col):
+
+                row = get_next_open_row(board, col)
+                drop_piece(board, row, col, AI_PIECE)
 
 
-    if turn == 0:
-         col=int(request.form.get('col'))
-         row = get_next_open_row(board, col)
-         player = 'player two'
-         if is_valid_location(board,col):
-             row = get_next_open_row(board,col)
-             drop_piece(board,row,col, PLAYER_PIECE)
-         refresh = 1
 
-
-    else:
-        #col=random.randint(0, COLUMN_COUNT-1)
-        #col = pick_best_move(board, AI_PIECE)
-        col, minimax_score = minimax(board, 2,-math.inf, math.inf, True)
-        row = get_next_open_row(board, col)
-        player = 'player one'
-        if is_valid_location(board, col):
+    if game_mode == 1:
+        if turn == 0:
+            col = int(request.form.get('col'))
             row = get_next_open_row(board, col)
-            drop_piece(board,row,col, AI_PIECE)
+            player = 'player two'
+            if is_valid_location(board, col):
+                row=get_next_open_row(board, col)
+                drop_piece(board, row, col, PLAYER_PIECE)
+            refresh = 1
+
+        else:
+
+            col, minimax_score = minimax(board,1, -math.inf, math.inf, True)
+            row = get_next_open_row(board, col)
+            player = 'player one'
+            if is_valid_location(board, col):
+                row = get_next_open_row(board, col)
+                drop_piece(board, row, col, AI_PIECE)
+    if game_mode == 3:
+        if turn == 0:
+            player = 'player two'
+            col=int(request.form.get('col'))
+            if is_valid_location(board,col):
+
+                row = get_next_open_row(board,col)
+                drop_piece(board, row, col, PLAYER_PIECE)
+                if winning_move(board, turn+1):
+                    win = 1
+                    return render_template('win.html', turn = win)
+                kolejka = 1
+
+                turn += 1
+                turn = turn % 2
 
 
-    if winning_move(board,turn+1) and turn == 0:
+                return redirect(url_for('wait'))
+
+
+        else:
+
+            player = 'player one'
+            col=int(request.form.get('col'))
+            if is_valid_location(board, col):
+
+                row = get_next_open_row(board, col)
+                drop_piece(board, row, col, AI_PIECE)
+                if winning_move(board, turn+1):
+                    win = 2
+                    return render_template('win.html', turn = win)
+                kolejka = 0
+                turn += 1
+                turn = turn % 2
+
+
+                return redirect(url_for('wait'))
+
+
+
+
+
+    if winning_move(board, turn+1) and turn == 0:
         win = 'player 1 win'
-    elif winning_move(board,turn+1) and turn == 1:
+        return render_template('win.html', board = np.flip(board), turn = turn+1 )
+    elif winning_move(board, turn+1) and turn == 1 and game_mode == 1:
         win = 'player 2 win'
+        return render_template('win.html', board = np.flip(board), turn = 'AI' )
+    elif winning_move(board, turn+1) and turn == 1:
+        win = 'player 2 win'
+        return render_template('win.html', board = np.flip(board), turn = turn+1 )
     else:
-        win = ' '
-    full = ''
+        win = ''
+    full0 = ' '
     if board[5][0] > 0:
-        full = 1
-
+        full0 = 1
+    full1 = ' '
+    if board[5][1] > 0:
+        full1 = 1
+    full2 = ' '
+    if board[5][2] > 0:
+        full2 = 1
+    full3 = ' '
+    if board[5][3] > 0:
+        full3 = 1
+    full4 = ' '
+    if board[5][4] > 0:
+        full4 = 1
+    full5 = ' '
+    if board[5][5] > 0:
+        full5 = 1
+    full6 = ' '
+    if board[5][6] > 0:
+        full6 = 1
 
     turn += 1
-    prev_turn +=1
-    turn = turn %2
-    prev_turn = prev_turn %2
-    return render_template('index.html',board = np.flip(board),col = col, player = player, win = win, full=full, refresh = refresh )
+    prev_turn += 1
+    turn = turn % 2
+    prev_turn = prev_turn % 2
+    global full_cols
+    full ={}
+    full = full_check(board)
 
-if __name__== "__main__":
-    app.run(debug=True)
+    return render_template('index.html',board = np.flip(board),col = col, player = player, win = win, full6 = full6, refresh = refresh,full5 = full5, full4 = full4, full3 = full3, full2 = full2,full1 = full1,full0 = full0, game_mode = game_mode)
+
+def full_check(board):
+    full_cols = {'lol':0,'1':0,'2':0,'3':0,'4':0,'5':0,'6':0,'7':0}
+    for n in range(COLUMN_COUNT):
+        if board[0][n] > 0:
+            full_cols[n] = 1
+    return full_cols
+
+
+
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5001, debug=True, use_reloader=True)

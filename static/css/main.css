@@ -1,11 +1,19 @@
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   background-color: #d7f5b5;
+  width:350px;
+  margin: auto;
+  justify-content:center;
+  text-align: center;
 }
 .red{
 width:30px;
 height:30px;
 background-color: red;}
+
+table {
+    justify-content: center;
+}
 
 .blue{
 width:30px;
@@ -18,11 +26,5 @@ height:30px;
 background-color: #ebeaca;}
 
 
-.wut{
-width:100px;
-height:100px;
-background-color: blue;
-padding: 100px;
-}
 
 
