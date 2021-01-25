@@ -12,7 +12,7 @@ gameNumber = 1
 app.secret_key = 'lol'
 
 
-def starting():
+def multi_start():
     global current_player_object
     global current_player
     global komputer
@@ -40,7 +40,7 @@ def starting():
 
 def win_check():
     global board
-    if winning_move(board, turn+1):
+    if win_checker(board, turn + 1):
         return True
 
 @app.route('/siec')
@@ -60,7 +60,7 @@ def create():
         turn = 0
         player = session['player']
         return render_template('index.html',board = board,player = player, gra=games[session['game']])
-    starting()
+    multi_start()
     session['player'] = 'first'
     session['game'] = gameNumber
     games[session['game']]['multi'] = True #games[1][multi]=True
@@ -110,10 +110,10 @@ def wait():
         full6 = 1
     if win_check() and kolejka == 1:
         win = 1
-        return render_template('win.html', turn = win+1)
+        return render_template('win.html',board = np.flip(board), turn = win+1)
     if win_check() and kolejka == 0:
         win = 0
-        return render_template('win.html', turn = win+1)
+        return render_template('win.html',board = np.flip(board), turn = win+1)
     if session['player'] == 'first' and kolejka == 0:
 
             return render_template('index.html',kolejka=kolejka, board = np.flip(board),full6 = full6,full5 = full5, full4 = full4, full3 = full3, full2 = full2,full1 = full1,full0 = full0, game_mode = game_mode)
@@ -151,7 +151,7 @@ def revange():
 @app.route("/")
 def main():
     global turn
-    starting()
+    multi_start()
     turn = 0
     return render_template('start.html')
 
@@ -205,7 +205,8 @@ def echo():
 
         else:
 
-            col, minimax_score = minimax(board,2, -math.inf, math.inf, True)
+
+            col = select_best_option(board, AI_PIECE)
             row = get_next_open_row(board, col)
             player = 'player one'
             if is_valid_location(board, col):
@@ -219,7 +220,7 @@ def echo():
 
                 row = get_next_open_row(board,col)
                 drop_piece(board, row, col, PLAYER_PIECE)
-                if winning_move(board, turn+1):
+                if win_checker(board, turn + 1):
                     win = 1
                     return render_template('win.html', turn = win, board = np.flip(board) )
                 kolejka = 1
@@ -239,9 +240,9 @@ def echo():
 
                 row = get_next_open_row(board, col)
                 drop_piece(board, row, col, AI_PIECE)
-                if winning_move(board, turn+1):
+                if win_checker(board, turn + 1):
                     win = 2
-                    return render_template('win.html', turn = win)
+                    return render_template('win.html', turn = win, board = np.flip(board))
                 kolejka = 0
                 turn += 1
                 turn = turn % 2
@@ -253,13 +254,13 @@ def echo():
 
 
 
-    if winning_move(board, turn+1) and turn == 0:
+    if win_checker(board, turn + 1) and turn == 0:
         win = 'player 1 win'
         return render_template('win.html', board = np.flip(board), turn = turn+1 )
-    elif winning_move(board, turn+1) and turn == 1 and game_mode == 1:
+    elif win_checker(board, turn + 1) and turn == 1 and game_mode == 1:
         win = 'player 2 win'
         return render_template('win.html', board = np.flip(board), turn = 'AI' )
-    elif winning_move(board, turn+1) and turn == 1:
+    elif win_checker(board, turn + 1) and turn == 1:
         win = 'player 2 win'
         return render_template('win.html', board = np.flip(board), turn = turn+1 )
     else:
@@ -298,7 +299,7 @@ def echo():
 
 def full_check(board):
     full_cols = {'lol':0,'1':0,'2':0,'3':0,'4':0,'5':0,'6':0,'7':0}
-    for n in range(COLUMN_COUNT):
+    for n in range(col_le):
         if board[0][n] > 0:
             full_cols[n] = 1
     return full_cols
