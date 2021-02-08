@@ -66,6 +66,7 @@ def board_state(board, piece):
 
 	return score
 
+<<<<<<< HEAD
 
 
 def get_valid_locations(board):
@@ -138,3 +139,29 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 			if alpha >= beta:
 				break
 		return column, value
+=======
+
+
+def get_valid_locations(board):
+	valid_locations = []
+	for col in range(col_le):
+		if is_valid_location(board, col):
+			valid_locations.append(col)
+	return valid_locations
+
+def select_best_option(board, piece):
+
+	valid_locations = get_valid_locations(board)
+	best_score = -10000
+	best_col = random.choice(valid_locations)
+	for col in valid_locations:
+		row = get_next_open_row(board, col)
+		temp_board = board.copy()
+		drop_piece(temp_board, row, col, piece)
+		score = board_state(temp_board, piece)
+		if score > best_score:
+			best_score = score
+			best_col = col
+
+	return best_col
+>>>>>>> 0e7049441b565899f1ed97fbdfb6568737bed71b
